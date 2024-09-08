@@ -2,7 +2,7 @@ package com.example.demo.domain;
 
 import java.time.Instant;
 
-class Vote {
+public class Vote {
     private Instant publishedAt;
     private User Voter;
     private VoteOption vote;

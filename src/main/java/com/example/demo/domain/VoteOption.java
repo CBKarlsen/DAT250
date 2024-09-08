@@ -1,16 +1,17 @@
 package com.example.demo.domain;
+
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import java.util.List;
 
-class VoteOption {
+public class VoteOption {
     private String caption;
     private int presentationOrder;
     @JsonBackReference
     private Poll poll;
     private List<Vote> votes;
 
-    public VoteOption(){
+    public VoteOption() {
 
     }
 
