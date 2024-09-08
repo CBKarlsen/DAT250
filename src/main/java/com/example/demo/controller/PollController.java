@@ -21,38 +21,74 @@ public class PollController {
     private PollManager pollManager;
 
     @PostMapping("/create")
-    public ResponseEntity<String> createPoll(@RequestParam String username, @RequestBody Poll poll) {
-        Optional<User> userOptional = pollManager.findUserByUsername(username);
-        if (userOptional.isEmpty()) {
-            return new ResponseEntity<>("User not found", HttpStatus.NOT_FOUND);
+    public ResponseEntity<String> createPoll(@RequestParam String username, @RequestBody Poll poll){
+        poll.setId(pollManager.getNextId());
+
+        User existingUser = findUserByUsername(username);
+        if (existingUser == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
         }
 
-        User user = userOptional.get();
-        poll.setId(pollManager.getNextId());
-        pollManager.addPollForUser(user, poll);
-        return new ResponseEntity<>("Poll created", HttpStatus.CREATED);
+        List<Poll> polls = pollManager.getHashmap().get(existingUser);
+        if (polls == null) {
+            polls = new ArrayList<>();
+        }
+        polls.add(poll);
+        pollManager.getHashmap().put(existingUser, polls);
+
+        return ResponseEntity.ok("Poll was created");
+    }
+
+    private User findUserByUsername(String username) {
+        return pollManager.getHashmap().keySet().stream()
+                .filter(user -> user.getUsername().equals(username))
+                .findFirst().orElse(null);
     }
 
     @GetMapping("/getAll")
-    public Collection<List<Poll>> getPolls() {
-        return pollManager.getAllPolls();
+    public Collection<List<Poll>> getPolls(){
+        return pollManager.getHashmap().values();
     }
 
     @DeleteMapping("/delete")
-    public ResponseEntity<String> deletePoll(@RequestParam int pollId) {
-        boolean deleted = pollManager.deletePoll(pollId);
-        if (!deleted) {
-            return new ResponseEntity<>("Poll not found", HttpStatus.NOT_FOUND);
+    public ResponseEntity<String> deletePoll(@RequestParam int pollId){
+        Collection<List<Poll>> polls = pollManager.getHashmap().values();
+
+        for (List<Poll> pollList : polls) {
+            pollList.removeIf(poll -> poll.getId() == pollId);
         }
         return ResponseEntity.ok("Poll deleted");
     }
 
     @PutMapping("/change")
     public ResponseEntity<String> changePoll(@RequestParam int pollId, @RequestBody Poll changedPoll) {
-        boolean updated = pollManager.updatePoll(pollId, changedPoll);
-        if (!updated) {
-            return new ResponseEntity<>("Poll not found", HttpStatus.NOT_FOUND);
+        boolean pollFound = false;
+
+        for (List<Poll> pollList : pollManager.getHashmap().values()) {
+            for (Poll p : pollList) {
+                if (p.getId() == pollId) {
+                    updatePoll(p, changedPoll);
+                    pollFound = true;
+                    break;
+                }
+            }
+            if (pollFound) {
+                break;
+            }
         }
+
+        if (!pollFound) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Poll not found");
+        }
+
         return ResponseEntity.ok("Poll changed");
+    }
+
+    private void updatePoll(Poll existingPoll, Poll changedPoll) {
+        existingPoll.setCreator(changedPoll.getCreator());
+        existingPoll.setOptions(changedPoll.getOptions());
+        existingPoll.setQuestion(changedPoll.getQuestion());
+        existingPoll.setPublishedAt(changedPoll.getPublishedAt());
+        existingPoll.setValidUntil(changedPoll.getValidUntil());
     }
 }

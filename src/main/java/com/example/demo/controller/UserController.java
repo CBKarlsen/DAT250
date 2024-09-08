@@ -26,12 +26,15 @@ public class UserController {
     @Autowired
     private PollManager pollManager;
 
+
     @PostMapping("/create")
-    public ResponseEntity<String> createUser(@RequestParam String username) {
-        User newUser = new User(username);
-        pollManager.addPollForUser(newUser, null); // Assuming this handles new users with no polls
-        return new ResponseEntity<>("User was created", HttpStatus.CREATED);
+    public String createUser(@RequestParam String username){
+        pollManager.getHashmap().put(new User(username),null);
+
+        return "User was created";
     }
+
+
 
     @GetMapping("/getAll")
     public List<User> getAll() {
@@ -47,17 +50,16 @@ public class UserController {
         return ResponseEntity.ok("User was deleted");
     }
 
-    @PutMapping("/change")
-    public ResponseEntity<String> changeUser(@RequestParam String username, @RequestParam String newUsername) {
-        Optional<User> existingUser = pollManager.findUserByUsername(username);
-        if (existingUser.isEmpty()) {
-            return new ResponseEntity<>("User not found", HttpStatus.NOT_FOUND);
+
+    @PutMapping("/change")// not working
+    public ResponseEntity<String> changeUser(@RequestParam String oldUsername, @RequestParam String newUsername) {
+        List<Poll> polls = pollManager.getHashmap().remove(new User(oldUsername));
+
+        if (polls == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
         }
 
-        User user = existingUser.get();
-        List<Poll> polls = pollManager.getHashmap().get(user);
-        pollManager.getHashmap().remove(user);
         pollManager.getHashmap().put(new User(newUsername), polls);
-        return ResponseEntity.ok("User was changed");
+        return ResponseEntity.ok("User changed");
     }
 }
