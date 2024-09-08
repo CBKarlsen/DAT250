@@ -1,67 +1,92 @@
 package com.example.demo.controller;
 
 import com.example.demo.domain.User;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.springframework.boot.web.client.RestTemplateBuilder;
-import org.springframework.http.*;
-import org.springframework.web.client.RestTemplate;
+import com.example.demo.domain.Poll;
+import com.example.demo.domain.VoteOption;
 
-import java.util.List;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+
+import java.time.Instant;
+import java.util.HashSet;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class UserControllerTest {
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+public class PollApplicationTests {
 
-    private RestTemplate restTemplate;
-
-    @BeforeEach
-    public void setUp() {
-        restTemplate = new RestTemplateBuilder().build();
-    }
-
-    private final String baseUrl = "http://localhost:8080/v1/user";
+    @Autowired
+    private TestRestTemplate restTemplate;
 
     @Test
-    public void testCreateUser() {
-        String url = baseUrl + "/create?username=user1";
-
-        ResponseEntity<String> response = restTemplate.postForEntity(url, null, String.class);
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals("User was created", response.getBody());
+    public void testServer() throws Exception {
+        ResponseEntity<String> enitity = restTemplate.getForEntity("/", String.class);
+        assertEquals(HttpStatus.OK, enitity.getStatusCode());
     }
+
+    @ParameterizedTest
+    @ValueSource(strings = "eple")
+    public void listUser(String username) throws Exception {
+        ResponseEntity<Set> response = restTemplate.getForEntity("/users", Set.class);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertTrue(response.getBody().contains(username));
+    }
+
 
     @Test
-    public void testGetAllUsers() {
-        String url = baseUrl + "/getAll";
+    public void userPollFlow() throws Exception {
+        String user1 = "eple";
+        String user2 = "ananas";
 
-        ResponseEntity<List> response = restTemplate.getForEntity(url, List.class);
+        // Create user1
+        ResponseEntity<User> userEntity = restTemplate.postForEntity("/users/"+user1, new User(user1, "pass1", user1+"@gmail.com"), User.class);
+        assertEquals(HttpStatus.CREATED, userEntity.getStatusCode());
+        assertEquals(new User(user1, "pass1", user1+"@gmail.com"), userEntity.getBody());
+
+        userEntity = restTemplate.getForEntity("/users/"+user1, User.class);
+        assertEquals(HttpStatus.OK, userEntity.getStatusCode());
+        assertEquals(new User(user1, "pass1", user1+"@gmail.com"), userEntity.getBody());
+
+        // List all users, contains user1
+        ResponseEntity<Set> response = restTemplate.getForEntity("/users", Set.class);
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertNotNull(response.getBody());
+        assertTrue(response.getBody().contains(user1));
+
+        // Create another user
+        userEntity = restTemplate.postForEntity("/users/"+user2, new User(user2, "pass2", user2+"@gmail.com"), User.class);
+        assertEquals(HttpStatus.CREATED, userEntity.getStatusCode());
+        assertEquals(new User(user2, "pass2", user2+"@gmail.com"), userEntity.getBody());
+
+        // List all users, contains both users
+        response = restTemplate.getForEntity("/users", Set.class);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertTrue(response.getBody().contains(user1));
+        assertTrue(response.getBody().contains(user2));
+
+        // User1 creates a poll
+        Poll poll = new Poll(
+                user1,
+                "Cat or Dog",
+                Instant.now().plusSeconds(3600),
+                true,
+                new HashSet<>(Set.of(
+                        new VoteOption("cat", 0),
+                        new VoteOption("Dog", 1)
+                ))
+        );
+        ResponseEntity<Poll> pollEntity = restTemplate.postForEntity("/polls", poll, Poll.class);
+        //assertEquals(HttpStatus.CREATED, pollEntity.getStatusCode());
+        assertEquals("eple", pollEntity.getBody().getPollCreator());
+
+
     }
 
-    @Test
-    public void testDeleteUser() {
-        String createUserUrl = baseUrl + "/create?username=userToDelete";
-        restTemplate.postForEntity(createUserUrl, null, String.class);
-
-        String deleteUrl = baseUrl + "/delete?username=userToDelete";
-
-        ResponseEntity<String> response = restTemplate.exchange(deleteUrl, HttpMethod.DELETE, null, String.class);
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals("User deleted", response.getBody());
-    }
-
-    @Test
-    public void testChangeUser() {
-        String createUserUrl = baseUrl + "/create?username=oldUser";
-        restTemplate.postForEntity(createUserUrl, null, String.class);
-
-        String changeUrl = baseUrl + "/change?oldUsername=oldUser&newUsername=newUser";
-
-        ResponseEntity<String> response = restTemplate.exchange(changeUrl, HttpMethod.PUT, null, String.class);
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals("User changed", response.getBody());
-    }
 }

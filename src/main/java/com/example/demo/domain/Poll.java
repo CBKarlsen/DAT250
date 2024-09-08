@@ -1,26 +1,53 @@
 package com.example.demo.domain;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.time.Instant;
 import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.UUID;
 
-public class Poll {
-
-
-    private int id;
+public class Poll  {
+    @JsonIgnore private UUID id;
+    private String username; // username to user who created poll
     private String question;
+    @JsonIgnore
     private Instant publishedAt;
     private Instant validUntil;
-    @JsonBackReference
-    private User creator;
-    @JsonManagedReference
-    private List<VoteOption> options;
+    private boolean isPublic;
+    private Set<VoteOption> voteOptions;
 
-
-    public Poll(){
-
+    public Poll(
+            @JsonProperty("username") String username,
+            @JsonProperty("validUntil") Instant validUntil,
+            @JsonProperty("isPublic") boolean isPublic,
+            @JsonProperty("question") String question,
+            @JsonProperty("voteOptions") Set<VoteOption> voteOptions
+    ) {
+        this.id = UUID.randomUUID(); // generates random ID
+        this.username = username;
+        this.question = question;
+        this.publishedAt = Instant.now();
+        this.validUntil = validUntil;
+        this.isPublic = isPublic;
+        this.voteOptions = voteOptions;
     }
+
+    public Poll() {};
+
+    public UUID getPollID() {
+        return id;
+    }
+
+    // should not be able to change user creator
+    public String getPollCreator() {
+        return username;
+    }
+
     public String getQuestion() {
         return question;
     }
@@ -45,27 +72,28 @@ public class Poll {
         this.validUntil = validUntil;
     }
 
-    public User getCreator() {
-        return creator;
+    public boolean isPublic() {
+        return isPublic;
     }
 
-    public void setCreator(User creator) {
-        this.creator = creator;
+    public Set<VoteOption> getVoteOptions() {
+        return voteOptions;
     }
 
-    public List<VoteOption> getOptions() {
-        return options;
+    public void addVoteOption(VoteOption vo) {
+        voteOptions.add(vo);
     }
 
-    public void setOptions(List<VoteOption> options) {
-        this.options = options;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Poll poll = (Poll) o;
+        return isPublic == poll.isPublic && Objects.equals(username, poll.username) && Objects.equals(question, poll.question) && Objects.equals(publishedAt, poll.publishedAt) && Objects.equals(validUntil, poll.validUntil) && Objects.equals(voteOptions, poll.voteOptions);
     }
 
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, username, question, publishedAt, validUntil, isPublic, voteOptions);
     }
 }

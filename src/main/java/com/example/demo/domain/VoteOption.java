@@ -1,18 +1,34 @@
 package com.example.demo.domain;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class VoteOption {
+    @JsonIgnore
+    private Set<Vote> votes;
     private String caption;
     private int presentationOrder;
-    @JsonBackReference
-    private Poll poll;
-    private List<Vote> votes;
 
-    public VoteOption() {
+    public VoteOption(
+            @JsonProperty("caption") String caption,
+            @JsonProperty("orderOfPresentation") int presentationOrder
+    ) {
+        this.votes = new HashSet<>();
+        this.caption = caption;
+        this.presentationOrder = presentationOrder;
+    }
 
+    public Set<Vote> getVotes() {
+        return votes;
+    }
+
+    public void setVotes(Set<Vote> votes) {
+        this.votes = votes;
     }
 
     public String getCaption() {
@@ -29,21 +45,5 @@ public class VoteOption {
 
     public void setPresentationOrder(int presentationOrder) {
         this.presentationOrder = presentationOrder;
-    }
-
-    public Poll getPoll() {
-        return poll;
-    }
-
-    public void setPoll(Poll poll) {
-        this.poll = poll;
-    }
-
-    public List<Vote> getVotes() {
-        return votes;
-    }
-
-    public void setVotes(List<Vote> votes) {
-        this.votes = votes;
     }
 }

@@ -1,94 +1,76 @@
 package com.example.demo.controller;
 
+import com.example.demo.domain.Poll;
+import com.example.demo.domain.Vote;
 import com.example.demo.manager.PollManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import com.example.demo.domain.Poll;
-import com.example.demo.domain.User;
+import org.springframework.http.ResponseEntity;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
+import java.net.URI;
+import java.util.Set;
+import java.util.UUID;
 
 @RestController
-@RequestMapping("/v1/poll")
 public class PollController {
 
-    @Autowired
-    private PollManager pollManager;
+    private final PollManager manager;
 
-    @PostMapping("/create")
-    public ResponseEntity<String> createPoll(@RequestParam String username, @RequestBody Poll poll){
-        poll.setId(pollManager.getNextId());
-
-        User existingUser = findUserByUsername(username);
-        if (existingUser == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
-        }
-
-        List<Poll> polls = pollManager.getHashmap().get(existingUser);
-        if (polls == null) {
-            polls = new ArrayList<>();
-        }
-        polls.add(poll);
-        pollManager.getHashmap().put(existingUser, polls);
-
-        return ResponseEntity.ok("Poll was created");
+    public PollController(@Autowired PollManager manager) {
+        this.manager = manager;
     }
 
-    private User findUserByUsername(String username) {
-        return pollManager.getHashmap().keySet().stream()
-                .filter(user -> user.getUsername().equals(username))
-                .findFirst().orElse(null);
+    ;
+
+    @GetMapping("/polls")
+    public ResponseEntity<Set<Poll>> getPolls() {
+        return ResponseEntity.ok().body(manager.getPolls());
     }
 
-    @GetMapping("/getAll")
-    public Collection<List<Poll>> getPolls(){
-        return pollManager.getHashmap().values();
-    }
-
-    @DeleteMapping("/delete")
-    public ResponseEntity<String> deletePoll(@RequestParam int pollId){
-        Collection<List<Poll>> polls = pollManager.getHashmap().values();
-
-        for (List<Poll> pollList : polls) {
-            pollList.removeIf(poll -> poll.getId() == pollId);
+    @GetMapping("/polls/{id}")
+    public ResponseEntity<Poll> getPoll(@PathVariable UUID id) {
+        Poll poll = manager.getPollByID(id);
+        if (manager.pollExists(poll)) {
+            return ResponseEntity.ok().body(poll);
+        } else {
+            return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.ok("Poll deleted");
     }
 
-    @PutMapping("/change")
-    public ResponseEntity<String> changePoll(@RequestParam int pollId, @RequestBody Poll changedPoll) {
-        boolean pollFound = false;
-
-        for (List<Poll> pollList : pollManager.getHashmap().values()) {
-            for (Poll p : pollList) {
-                if (p.getId() == pollId) {
-                    updatePoll(p, changedPoll);
-                    pollFound = true;
-                    break;
-                }
-            }
-            if (pollFound) {
-                break;
-            }
+    @PostMapping("/polls")
+    public ResponseEntity<Poll> createPoll(@RequestBody Poll poll) {
+        if (manager.createPoll(poll, poll.getPollCreator())) {
+            return ResponseEntity.created(URI.create("/" + poll.getPollID())).body(poll);
+        } else {
+            return ResponseEntity.notFound().build();
         }
-
-        if (!pollFound) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Poll not found");
-        }
-
-        return ResponseEntity.ok("Poll changed");
     }
 
-    private void updatePoll(Poll existingPoll, Poll changedPoll) {
-        existingPoll.setCreator(changedPoll.getCreator());
-        existingPoll.setOptions(changedPoll.getOptions());
-        existingPoll.setQuestion(changedPoll.getQuestion());
-        existingPoll.setPublishedAt(changedPoll.getPublishedAt());
-        existingPoll.setValidUntil(changedPoll.getValidUntil());
+    @PostMapping("/polls/{id}")
+    public ResponseEntity<Vote> castVote(@PathVariable String id, @RequestBody Vote vote) {
+        if (manager.castVote(vote)) {
+            return ResponseEntity.created(URI.create("/" + id)).body(vote);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @PutMapping("/polls/{id}")
+    public ResponseEntity<Vote> changeVote(@PathVariable String id, @RequestBody Vote newVote) {
+        if (manager.castVote(newVote)) {
+            return ResponseEntity.ok().body(newVote);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @DeleteMapping("/polls/{id}")
+    public ResponseEntity<HttpStatus> deletePoll(@PathVariable UUID id) {
+        if (manager.deletePoll(id)) {
+            return ResponseEntity.noContent().build();
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 }
