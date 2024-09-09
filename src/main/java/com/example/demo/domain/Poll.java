@@ -37,7 +37,6 @@ public class Poll  {
         this.voteOptions = voteOptions;
     }
 
-    public Poll() {};
 
     public UUID getPollID() {
         return id;

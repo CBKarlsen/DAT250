@@ -4,8 +4,9 @@
 This is going to be a short report which will be discussing the results of the second experiment. I will be discussing step-by-step what i have done and what the results were.
 
 ### Step 0:
-The first step was to choose which one of the HTTP clients i wanted to use. I tried using Bruno's HTTP client but i was not able to get it to work. I then tried using the HTTP client that was provided in the lab manual. I was able to get it to work and i was able to get the results that i wanted. I haven´t been able to attent lectures as much as i want because of personal reasons. However i started using the HTTP client built into my IDE which is IntelliJ, this worked fine for me. I have not been using as effieciently as i am suposed to but i am working on it.
-
+The first step was to choose which HTTP client to use. I initially tried Bruno’s HTTP client but was unable to get it to work. I then used the HTTP client provided in the lab manual, which worked and gave the desired results. Due to personal reasons, I have not been able to attend lectures as much as I would like.
+However, I started using the HTTP client built into my IDE (IntelliJ), and it worked fine for me. 
+I haven’t been using it as efficiently as I should, but I am working on improving that.
 ### Step 1:
 I used the project which was created for Expass 1. I had already configured the project and added it to my github so there wasnt any issues here. 
 
@@ -47,17 +48,20 @@ VoteOption.java, found [here](https://github.com/CBKarlsen/DAT250/blob/master/sr
     - option
     - votes
 
-These files I created as speciefied in the lab model and i used the IntelliJ IDE generative tool to create the getters and setters for the classes. 
-Everything was working fine until I started the next step.
+These files I created as speciefied in the lab model and I used the IntelliJ IDE generative tool to create the getters and setters for the classes. 
 
 ### Step 3:
 Setting up the "test", HTTP client in intelliJ was quite difficult when i did not have the working logic behind the files. This is my first time doing something like this so i tried my way forward.
 I started with a POST request to create a user. which worked, did not have time to implement the email field. Then a GET call to se the users I had created which showed first one, then two users. The i tried to DELETE and to my suprise that worked aswell. 
 
 ### Step 4:
-This was a real challenge for me, I found this to be really difficult to work on this project as there was some vague examples and I don´t understand it well.
-I think my lack of understanding made me over complicate a lot of stuff. I got some things to work and some other things not to work. However i tried to debug and find out what i was doing wrong. One of my challenges was to implement a way to change username. I do not know if it works as i tried really hard in my HTTP client to test it, i only got bad requests.
-So I started doing the assignment all over this weekend which lead to a lot of slip ups by me. The assignment is hurried along and i am not happy with the result. I will try to do better next time.
+- PollController: Manages polls and votes, allowing users to create polls, cast votes, and update or delete polls.
+- UserController: Manages user data, allowing users to be created and queried by username.
+- The PollManager creates 4 hashmaps. One for users, one for poll, userpolls, and pollvotes. This is to "manage" the data. It facilitates the creation and management of polls, allows users to vote, and ensures proper clean-up when polls are deleted.
+- The VoteController provides a way to retrieve a list of all votes through an HTTP GET request to /votes.
+- The PollManager handles the underlying logic of retrieving and managing the votes.
+- The response will contain a set of Vote objects, and the operation will always return an HTTP 200 OK response with the list of votes in the body.
+
 
 Files:
 - [UserController.java](https://github.com/CBKarlsen/DAT250/blob/master/src/main/java/com/example/demo/controller/UserController.java)
@@ -66,4 +70,8 @@ Files:
 
 ### Step 5:
 I created a single automated test, i am struggling to test the others as I find it difficult to understand how to do it. However as you can see i passed 3/4 on the automatic test.
-Found here [Test]()
+Found here [Test](https://github.com/CBKarlsen/DAT250/blob/master/src/test/java/com/example/demo/DemoApplicationTests.java)
+
+### Conclusion:
+I’ve learned a lot from this lab, but I made the mistake of not planning ahead, which caused me to overcomplicate many things. I’ll try to do better next time by attending more lectures and asking more questions. I also plan to improve my planning process and avoid rushing through assignments. Additionally, I will focus on understanding the logic behind the code better.
+For future work, I would spend more time on the implementation of polls and perhaps divide it into a separate VoteOption controller.
