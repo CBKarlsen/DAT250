@@ -1,0 +1,34 @@
+.content {
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  gap: 2.5rem;
+  width: 100%;
+}
+
+.info button {
+  color: burlywood;
+  background-color: black;
+  border: 0.1rem solid black;
+  font-size: small;
+  height: 2.5rem;
+}
+
+h1 {
+  text-align: center;
+}
+
+h2 {
+  text-align: center;
+}
+
+div {
+  justify-content: center;
+  margin-bottom: 1rem;
+  margin-top: 1rem;
+}
+
+label {
+    display: inline-block;
+    margin-bottom: 0.2rem;
+}

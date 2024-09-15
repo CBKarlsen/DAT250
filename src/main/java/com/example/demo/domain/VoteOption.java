@@ -23,12 +23,6 @@ public class VoteOption {
         this.presentationOrder = presentationOrder;
     }
 
-    public VoteOption() {};
-
-    public int getVotes() {
-        return votes;
-    }
-
     public void addVote() {
         votes ++;
     }
@@ -37,20 +31,8 @@ public class VoteOption {
         if (votes > 0) votes --;
     }
 
-    public String getCaption() {
-        return caption;
-    }
-
-    public void setCaption(String caption){
-        this.caption = caption;
-    }
-
     public int getPresentationOrder() {
         return presentationOrder;
-    }
-
-    public void setPresentationOrder(int presentationOrder) {
-        this.presentationOrder = presentationOrder;
     }
 
     @Override

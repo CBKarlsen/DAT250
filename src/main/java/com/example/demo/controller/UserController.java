@@ -6,8 +6,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.example.demo.domain.User;
-
-import com.example.demo.domain.User;
 import com.example.demo.manager.PollManager;
 
 import java.net.URI;

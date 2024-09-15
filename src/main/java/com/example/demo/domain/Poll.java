@@ -1,8 +1,6 @@
 package com.example.demo.domain;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.time.Instant;
@@ -33,7 +31,6 @@ public class Poll  {
         this.voteOptions = voteOptions != null ? voteOptions : new HashSet<>();
     }
 
-    public Poll() {};
 
     public UUID getPollID() {
         return id;
@@ -43,41 +40,19 @@ public class Poll  {
         return username;
     }
 
-    public void setPollCreator(String username) {
-        this.username = username;
-    }
 
-    public String getQuestion() {
-        return question;
-    }
-
-    public void setQuestion(String question) {
-        this.question = question;
-    }
-
-    public Instant getPublishedAt() {
-        return publishedAt;
-    }
 
     public void setPublishedAt(Instant publishedAt) {
         this.publishedAt = publishedAt;
     }
 
-    public Instant getValidUntil() {
-        return validUntil;
-    }
 
-    public void setValidUntil(Instant validUntil) {
-        this.validUntil = validUntil;
-    }
 
     public boolean isPublic() {
         return isPublic;
     }
 
-    public void setPublicity(boolean isPublic) {
-        this.isPublic = isPublic;
-    }
+
 
     public Set<VoteOption> getVoteOptions() {
         return voteOptions;
@@ -92,9 +67,7 @@ public class Poll  {
         return null;
     }
 
-    public void addVoteOption(VoteOption vo) {
-        voteOptions.add(vo);
-    }
+
 
     @Override
     public boolean equals(Object o) {

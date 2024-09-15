@@ -26,8 +26,6 @@ public class Vote {
         this.publishedAt = Instant.now();
     }
 
-    public Vote() {};
-
     public UUID getVoteID() {
         return voteID;
     }
@@ -46,10 +44,6 @@ public class Vote {
 
     public void setVoter(String voter) {
         this.username = voter;
-    }
-
-    public Instant getPublishedAt() {
-        return publishedAt;
     }
 
     public int getVoteOption() {
