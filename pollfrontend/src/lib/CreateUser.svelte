@@ -14,7 +14,7 @@
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({username:username, password:password})
+            body: JSON.stringify({username: username, password: password})
         })
             .then((res) => {
                 if (res.status < 299) return res.json()
@@ -35,7 +35,7 @@
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({username:newUsername, password:newPassword, email:email})
+            body: JSON.stringify({username: newUsername, password: newPassword, email: email})
         })
             .then((res) => {
                 if (res.status < 299) return res.json()

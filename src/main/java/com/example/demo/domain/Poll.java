@@ -6,16 +6,12 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.time.Instant;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 public class Poll  {
     @JsonIgnore private UUID id;
     private String username; // username to user who created poll
     private String question;
-    @JsonIgnore
     private Instant publishedAt;
     private Instant validUntil;
     private boolean isPublic;
@@ -23,28 +19,32 @@ public class Poll  {
 
     public Poll(
             @JsonProperty("username") String username,
+            @JsonProperty("question") String question,
             @JsonProperty("validUntil") Instant validUntil,
             @JsonProperty("isPublic") boolean isPublic,
-            @JsonProperty("question") String question,
             @JsonProperty("voteOptions") Set<VoteOption> voteOptions
     ) {
-        this.id = UUID.randomUUID(); // generates random ID
+        this.id = UUID.randomUUID(); // random unique ID
         this.username = username;
         this.question = question;
         this.publishedAt = Instant.now();
         this.validUntil = validUntil;
         this.isPublic = isPublic;
-        this.voteOptions = voteOptions;
+        this.voteOptions = voteOptions != null ? voteOptions : new HashSet<>();
     }
 
+    public Poll() {};
 
     public UUID getPollID() {
         return id;
     }
 
-    // should not be able to change user creator
     public String getPollCreator() {
         return username;
+    }
+
+    public void setPollCreator(String username) {
+        this.username = username;
     }
 
     public String getQuestion() {
@@ -75,8 +75,21 @@ public class Poll  {
         return isPublic;
     }
 
+    public void setPublicity(boolean isPublic) {
+        this.isPublic = isPublic;
+    }
+
     public Set<VoteOption> getVoteOptions() {
         return voteOptions;
+    }
+
+    public VoteOption getVoteOption(int index) {
+        for (VoteOption voteOption : voteOptions) {
+            if (voteOption.getPresentationOrder() == index) {
+                return voteOption;
+            }
+        }
+        return null;
     }
 
     public void addVoteOption(VoteOption vo) {
@@ -88,7 +101,7 @@ public class Poll  {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Poll poll = (Poll) o;
-        return isPublic == poll.isPublic && Objects.equals(username, poll.username) && Objects.equals(question, poll.question) && Objects.equals(publishedAt, poll.publishedAt) && Objects.equals(validUntil, poll.validUntil) && Objects.equals(voteOptions, poll.voteOptions);
+        return isPublic == poll.isPublic && Objects.equals(id, poll.id) && Objects.equals(username, poll.username) && Objects.equals(question, poll.question) && Objects.equals(publishedAt, poll.publishedAt) && Objects.equals(validUntil, poll.validUntil) && Objects.equals(voteOptions, poll.voteOptions);
     }
 
     @Override

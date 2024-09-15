@@ -40,7 +40,8 @@
                 <div class="vote-details">
                     <button on:click={() => {
                                 castVote(vo.presentationOrder);
-                            }}>Vote</button>
+                            }}>Vote
+                    </button>
                     <p>{vo.votes} Votes</p>
                 </div>
             </li>
@@ -55,6 +56,7 @@
         list-style: none;
         padding-inline-start: 0;
     }
+
     .vos li {
         border: 0.18rem solid dimgrey;
         border-radius: 0.4rem;
@@ -64,6 +66,7 @@
         justify-content: space-between;
         align-items: center;
     }
+
     .vote-details {
         display: flex;
         gap: 0.5rem;

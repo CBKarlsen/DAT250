@@ -5,7 +5,8 @@
     let username = $user.username;
     let currentError = null;
 
-    const result = fetch("http://localhost:8080/polls").then((response) => response.json())
+    let result = fetch("http://localhost:8080/polls").then((response) => response.json());
+
 
     const convertToDate = (timestamp) => {
         const date = new Date(timestamp);  // Convert string to Date object
@@ -17,10 +18,9 @@
     {#await result}
         its loading…
     {:then ready}
-        {#each ready as poll}
+        {#each ready.sort((a,b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()) as poll}
             <div class="poll">
                 <h3>{poll.question}</h3>
-
                 <p>Poll created: {convertToDate(poll.publishedAt)}</p>
                 <p>Poll is valid until: {convertToDate(poll.validUntil)}</p>
                 <Vote pollID={poll.pollID}/>
@@ -37,8 +37,8 @@
         grid-column: min(2);
     }
     .poll {
-        background-color: #e8eeeb;
-        border-radius: 0.2rem;
+        background-color: #f0f0f0;
+        border-radius: 2rem;
         padding: 1rem 5rem 1rem 5rem;
         width: auto;
     }

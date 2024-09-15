@@ -6,36 +6,42 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 public class VoteOption {
-    @JsonIgnore
-    private Set<Vote> votes;
+    private int votes;
     private String caption;
     private int presentationOrder;
 
     public VoteOption(
             @JsonProperty("caption") String caption,
-            @JsonProperty("orderOfPresentation") int presentationOrder
+            @JsonProperty("presentationOrder") int presentationOrder
     ) {
-        this.votes = new HashSet<>();
+        this.votes = 0;
         this.caption = caption;
         this.presentationOrder = presentationOrder;
     }
 
-    public Set<Vote> getVotes() {
+    public VoteOption() {};
+
+    public int getVotes() {
         return votes;
     }
 
-    public void setVotes(Set<Vote> votes) {
-        this.votes = votes;
+    public void addVote() {
+        votes ++;
+    }
+
+    public void removeVote() {
+        if (votes > 0) votes --;
     }
 
     public String getCaption() {
         return caption;
     }
 
-    public void setCaption(String caption) {
+    public void setCaption(String caption){
         this.caption = caption;
     }
 
@@ -45,5 +51,18 @@ public class VoteOption {
 
     public void setPresentationOrder(int presentationOrder) {
         this.presentationOrder = presentationOrder;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        VoteOption that = (VoteOption) o;
+        return presentationOrder == that.presentationOrder && Objects.equals(votes, that.votes) && Objects.equals(caption, that.caption);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(votes, caption, presentationOrder);
     }
 }

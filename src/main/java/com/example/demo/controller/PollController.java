@@ -13,15 +13,14 @@ import java.util.Set;
 import java.util.UUID;
 
 @RestController
+@CrossOrigin
 public class PollController {
 
     private final PollManager manager;
 
-    public PollController(@Autowired PollManager manager) {
+    public PollController(@Autowired PollManager manager){
         this.manager = manager;
-    }
-
-    ;
+    };
 
     @GetMapping("/polls")
     public ResponseEntity<Set<Poll>> getPolls() {
@@ -30,8 +29,8 @@ public class PollController {
 
     @GetMapping("/polls/{id}")
     public ResponseEntity<Poll> getPoll(@PathVariable UUID id) {
-        Poll poll = manager.getPollByID(id);
-        if (manager.pollExists(poll)) {
+        if (manager.pollExists(id)) {
+            Poll poll = manager.getPollByID(id);
             return ResponseEntity.ok().body(poll);
         } else {
             return ResponseEntity.notFound().build();
@@ -41,25 +40,8 @@ public class PollController {
     @PostMapping("/polls")
     public ResponseEntity<Poll> createPoll(@RequestBody Poll poll) {
         if (manager.createPoll(poll, poll.getPollCreator())) {
-            return ResponseEntity.created(URI.create("/" + poll.getPollID())).body(poll);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
-    }
-
-    @PostMapping("/polls/{id}")
-    public ResponseEntity<Vote> castVote(@PathVariable String id, @RequestBody Vote vote) {
-        if (manager.castVote(vote)) {
-            return ResponseEntity.created(URI.create("/" + id)).body(vote);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
-    }
-
-    @PutMapping("/polls/{id}")
-    public ResponseEntity<Vote> changeVote(@PathVariable String id, @RequestBody Vote newVote) {
-        if (manager.castVote(newVote)) {
-            return ResponseEntity.ok().body(newVote);
+            String pollID = poll.getPollID().toString();
+            return ResponseEntity.created(URI.create("/"+pollID)).body(poll);
         } else {
             return ResponseEntity.notFound().build();
         }
@@ -71,6 +53,15 @@ public class PollController {
             return ResponseEntity.noContent().build();
         } else {
             return ResponseEntity.notFound().build();
+        }
+    }
+
+    @DeleteMapping("/polls")
+    public ResponseEntity<HttpStatus> deleteAllPolls() {
+        if (manager.deleteAllPolls()) {
+            return ResponseEntity.noContent().build();
+        } else {
+            return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).build();
         }
     }
 }
