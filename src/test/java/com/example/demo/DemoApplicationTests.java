@@ -1,5 +1,5 @@
 package com.example.demo;
-/*
+
 import com.example.demo.domain.User;
 import com.example.demo.domain.Poll;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -92,4 +92,4 @@ public class DemoApplicationTests {
 				.andExpect(jsonPath("$[*].username", hasItems(user1, user2)));
 	}
 }
-*/
+
